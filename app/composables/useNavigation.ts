@@ -12,6 +12,7 @@ export type NavigationItem = {
   page?: boolean;
   type?: NavigationItemType;
   new?: boolean;
+  soon?: boolean;
   navigation?: {
     icon?: string;
   };
@@ -54,34 +55,21 @@ export async function useNavigation() {
   const { data } = useAsyncData(
     "navigation",
     () => {
-      return queryCollectionNavigation("content", ["navigation", "new"]);
+      return queryCollectionNavigation("content", ["navigation", "new", "soon", "hide"]);
     },
     {
       default: () => [],
-      transform: (data) => {
-        const doc = data.find(i => i.stem === "docs")!;
-        // const rootDocs
-        //   = doc.children
-        //     ?.filter(i => !EXCLUDED_PARENT_TITLE.includes(i.title ?? ""))
-        //     .map(i => mapWithType(i, doc)) ?? [];
-        const nonRootDocs
-          = doc.children
-            ?.filter(i => i.children)
-            .map(i => mapWithType(i, doc)) ?? [];
+      transform: (data2) => {
+        const doc = data2.find(i => i.stem === "docs");
+        if (!doc)
+          return [];
+
+        const allDocs = doc.children?.map(i => mapWithType(i, doc)) ?? [];
 
         return [
           {
             ...doc,
-            children: [
-              // {
-              //   path: "/docs",
-              //   stem: "docs",
-              //   title: "Get Started",
-              //   type: navigationItemType(doc, null),
-              //   children: rootDocs,
-              // },
-              ...nonRootDocs,
-            ],
+            children: allDocs,
           },
         ];
       },

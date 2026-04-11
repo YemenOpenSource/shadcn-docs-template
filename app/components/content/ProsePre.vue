@@ -28,74 +28,103 @@ const IconExtension = computed(() => {
 });
 
 const highlighter = await getShikiHighlighter();
-const highlighted = highlighter.highlight(props.code.trimEnd(), { lang: lang.value, transformers: [
-  {
-    name: "stripe-wrapper",
-    root(node) {
-      const pre = node.children.find(child => child.type === "element" && child.tagName === "pre");
-      if (pre?.type === "element") {
-        const code = pre.children.find(child => child.type === "element" && child.tagName === "code");
-        if (code?.type === "element") {
-          node.children = code.children;
+const highlighted = highlighter.highlight(props.code.trimEnd(), {
+  lang: lang.value,
+  transformers: [
+    {
+      name: "stripe-wrapper",
+      root(node) {
+        const pre = node.children.find(child => child.type === "element" && child.tagName === "pre");
+        if (pre?.type === "element") {
+          const code = pre.children.find(
+            child => child.type === "element" && child.tagName === "code",
+          );
+          if (code?.type === "element") {
+            node.children = code.children;
+          }
         }
-      }
+      },
     },
-  },
-  {
-    name: "modify-lines",
-    line(node) {
-      node.properties.class = undefined;
-      node.properties["data-line"] = "";
+    {
+      name: "modify-lines",
+      line(node) {
+        node.properties.class = undefined;
+        node.properties["data-line"] = "";
+      },
     },
-  },
-  {
-    name: "highlight-line-inline",
-    line(node, line, ..._a) {
-      if (props.highlights?.includes(line))
-        node.properties["data-highlighted-line"] = "";
+    {
+      name: "highlight-line-inline",
+      line(node, line, ..._a) {
+        if (props.highlights?.includes(line))
+          node.properties["data-highlighted-line"] = "";
+      },
+      // TODO: implement `data-highlighted-chars`
+      tokens(_tokens) {},
     },
-    // TODO: implement `data-highlighted-chars`
-    tokens(_tokens) {},
-  },
-] });
+  ],
+});
 
-const codeAttributes = computed(() => isShowingLineNumber.value
-  ? ({
-      "data-line-numbers": "",
-      "data-line-numbers-max-digits": 2,
-    })
-  : undefined);
+const codeAttributes = computed(() =>
+  isShowingLineNumber.value
+    ? {
+        "data-line-numbers": "",
+        "data-line-numbers-max-digits": 2,
+      }
+    : undefined,
+);
 </script>
 
 <template>
   <pre
-    v-if="unwrap" :class="cn(`
-      no-scrollbar min-w-0 overflow-x-auto bg-transparent! px-4 py-3.5 outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0
-    `, props.class)" :data-language="lang"
+    v-if="unwrap"
+    :class="
+      cn(
+        `no-scrollbar min-w-0 overflow-x-auto bg-transparent! px-4 py-3.5 outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0`,
+        props.class,
+      )
+    "
+    :data-language="lang"
   ><code v-bind="codeAttributes" v-html="highlighted" /></pre>
   <figure v-else data-pretty-code-figure>
     <pre
-      v-if="isNpmCommand" :class="cn(`
-        no-scrollbar min-w-0 overflow-x-auto px-4 py-3.5 outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0
-      `, props.class)"
+      v-if="isNpmCommand"
+      :class="
+        cn(
+          `no-scrollbar min-w-0 overflow-x-auto px-4 py-3.5 outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0`,
+          props.class,
+        )
+      "
     ><CodeBlockCommand :code /></pre>
 
     <template v-else-if="title">
-      <figcaption data-pretty-code-title :data-language="lang" class="flex items-center gap-2 text-code-foreground [&_svg]:size-4 [&_svg]:text-code-foreground [&_svg]:opacity-70">
+      <figcaption
+        data-pretty-code-title
+        :data-language="lang"
+        class="flex items-center gap-2 text-code-foreground [&_svg]:size-4 [&_svg]:text-code-foreground [&_svg]:opacity-70"
+      >
         <component :is="IconExtension" v-if="IconExtension" />
         {{ title }}
       </figcaption>
       <pre
-        :data-language="lang" :class="cn(`
-          no-scrollbar min-w-0 overflow-x-auto px-4 py-3.5 outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0
-        `, props.class)"
+        :data-language="lang"
+        :class="
+          cn(
+            `no-scrollbar min-w-0 overflow-x-auto px-4 py-3.5 outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0`,
+            props.class,
+          )
+        "
       ><CopyButton :value="code" /><code v-bind="codeAttributes" v-html="highlighted" /></pre>
     </template>
 
     <pre
-      v-else :data-language="lang" :class="cn(`
-        no-scrollbar min-w-0 overflow-x-auto px-4 py-3.5 outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0
-      `, props.class)"
+      v-else
+      :data-language="lang"
+      :class="
+        cn(
+          `no-scrollbar min-w-0 overflow-x-auto px-4 py-3.5 outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0`,
+          props.class,
+        )
+      "
     ><CopyButton :value="code" /><code v-bind="codeAttributes" v-html="highlighted" /></pre>
   </figure>
 </template>

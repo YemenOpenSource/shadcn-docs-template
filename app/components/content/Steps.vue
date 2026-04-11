@@ -17,12 +17,13 @@ const levelClass = {
 
 <template>
   <div
-    :class="cn(
-      // eslint-disable-next-line better-tailwindcss/no-unknown-classes
-      'steps',
-      levelClass[level],
-    )"
-
+    :class="
+      cn(
+        // eslint-disable-next-line better-tailwindcss/no-unknown-classes
+        'steps',
+        levelClass[level],
+      )
+    "
     class="mb-12 ml-4 border-l pl-8 [counter-reset:step]"
   >
     <slot />

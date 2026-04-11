@@ -47,9 +47,7 @@ const { config } = useConfig();
         v-bind="$attrs"
       >
         <CopyIcon />
-        <span class="group-data-[size=icon-sm]/button:sr-only">
-          Copy Code
-        </span>
+        <span class="group-data-[size=icon-sm]/button:sr-only"> Copy Code </span>
       </Button>
     </DialogTrigger>
     <DialogContent
@@ -57,7 +55,8 @@ const { config } = useConfig();
     >
       <DialogHeader>
         <DialogTitle class="capitalize">
-          s <!-- {{
+          s
+          <!-- {{
             config.activeTheme === "neutral" ? "Default" : config.activeTheme
           }} -->
         </DialogTitle>

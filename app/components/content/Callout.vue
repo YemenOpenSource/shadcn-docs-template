@@ -98,10 +98,7 @@ const IconComponent = selected.icon;
       :class="cn('size-5 shrink-0 translate-y-0.5', selected.iconClass)"
     />
     <div class="flex-1">
-      <AlertTitle
-        v-if="props.title"
-        class="mb-1 leading-tight font-semibold tracking-tight"
-      >
+      <AlertTitle v-if="props.title" class="mb-1 leading-tight font-semibold tracking-tight">
         {{ props.title }}
       </AlertTitle>
       <AlertDescription class="text-sm/relaxed text-foreground/90 select-text">

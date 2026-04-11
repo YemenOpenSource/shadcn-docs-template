@@ -1,6 +1,5 @@
 import type { ContentCollectionItem } from "@nuxt/content";
 import { queryCollection } from "@nuxt/content/server";
-import { getDocsVersion } from "../utils/docs-version";
 
 export type SearchResult = {
   title: string;
@@ -12,6 +11,9 @@ export type SearchResult = {
 
 export default defineCachedEventHandler(
   async (event) => {
+    // Set cache headers directly in the handler (CDN/Browser)
+    setResponseHeader(event, "Cache-Control", "public, max-age=3600, s-maxage=3600");
+
     const query = getQuery(event).q as string;
 
     if (!query || query.trim().length < 2) {
@@ -48,10 +50,7 @@ export default defineCachedEventHandler(
             const index = bodyLower.indexOf(queryLower);
             if (index !== -1) {
               const start = Math.max(0, index - 50);
-              const end = Math.min(
-                item.rawbody.length,
-                index + query.length + 50,
-              );
+              const end = Math.min(item.rawbody.length, index + query.length + 50);
               excerpt = item.rawbody.slice(start, end);
               if (start > 0) {
                 excerpt = `...${excerpt}`;
@@ -97,8 +96,7 @@ export default defineCachedEventHandler(
 
       return matched.slice(0, 20); // Limit to 20 results
     }
-    catch (error) {
-      console.error("Search error:", error);
+    catch {
       return [];
     }
   },
@@ -107,7 +105,7 @@ export default defineCachedEventHandler(
     name: "search",
     getKey: (event) => {
       const query = getQuery(event).q;
-      const version = getDocsVersion();
+      const version = useRuntimeConfig(event).docsVersion ?? "unknown";
       return query ? `v:${version}:q:${query}` : `v:${version}:default`;
     },
   },

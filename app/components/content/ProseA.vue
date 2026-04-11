@@ -1,10 +1,13 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
-  href?: string;
-  target?: "_blank" | "_parent" | "_self" | "_top" | (string & object) | null | undefined;
-}>(), {
-  href: "",
-});
+const props = withDefaults(
+  defineProps<{
+    href?: string;
+    target?: "_blank" | "_parent" | "_self" | "_top" | (string & object) | null | undefined;
+  }>(),
+  {
+    href: "",
+  },
+);
 </script>
 
 <template>

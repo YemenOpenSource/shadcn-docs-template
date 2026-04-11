@@ -46,7 +46,7 @@ const { copy, copied } = useClipboard({ source: value });
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        {{ copied ? "Copied" : tooltip }}
+        {{ copied ? 'Copied' : tooltip }}
       </TooltipContent>
     </Tooltip>
   </TooltipProvider>

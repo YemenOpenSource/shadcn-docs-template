@@ -3,13 +3,16 @@ import type { Toc } from "@nuxt/content";
 import type { HTMLAttributes } from "vue";
 import { cn } from "~/lib/utils";
 
-const props = withDefaults(defineProps<{
-  toc: Toc;
-  variant?: "dropdown" | "list";
-  class?: HTMLAttributes["class"];
-}>(), {
-  variant: "list",
-});
+const props = withDefaults(
+  defineProps<{
+    toc: Toc;
+    variant?: "dropdown" | "list";
+    class?: HTMLAttributes["class"];
+  }>(),
+  {
+    variant: "list",
+  },
+);
 
 const open = ref(false);
 const { path } = toRefs(useRoute());
@@ -38,13 +41,17 @@ const tocLinks = computed(() => {
 
 onMounted(() => {
   const elements = tocLinks.value.map(link => document.getElementById(link.id));
-  const observers = useIntersectionObserver(elements, (entries) => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        activeHeading.value = entry.target.id;
+  const observers = useIntersectionObserver(
+    elements,
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          activeHeading.value = entry.target.id;
+        }
       }
-    }
-  }, { rootMargin: "0% 0% -80% 0%" });
+    },
+    { rootMargin: "0% 0% -80% 0%" },
+  );
 
   onBeforeUnmount(() => {
     observers.stop();
@@ -53,25 +60,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <DropdownMenu
-    v-model:open="open"
-    v-if="variant === 'dropdown'"
-  >
+  <DropdownMenu v-model:open="open" v-if="variant === 'dropdown'">
     <DropdownMenuTrigger as-child>
-      <Button
-        :class="cn('h-8 md:h-7', props.class)"
-        size="sm"
-        variant="outline"
-      >
+      <Button :class="cn('h-8 md:h-7', props.class)" size="sm" variant="outline">
         <!-- <Icon name="tabler:menu-deep" /> -->
 
         On This Page
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent
-      align="start"
-      class="no-scrollbar max-h-[70svh]"
-    >
+    <DropdownMenuContent align="start" class="no-scrollbar max-h-[70svh]">
       <DropdownMenuItem
         v-for="item in tocLinks"
         :key="item.id"
@@ -85,10 +82,7 @@ onMounted(() => {
     </DropdownMenuContent>
   </DropdownMenu>
 
-  <div
-    v-else
-    :class="cn('flex flex-col gap-2 p-4 pt-0 text-sm', props.class)"
-  >
+  <div v-else :class="cn('flex flex-col gap-2 p-4 pt-0 text-sm', props.class)">
     <p
       v-if="tocLinks.length"
       class="sticky top-0 flex h-6 items-center gap-2 bg-background text-xs text-muted-foreground"

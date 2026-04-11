@@ -61,11 +61,16 @@ export function useSearch() {
         return [];
       }
 
-      const results = await $fetch<SearchResult[]>("/api/search", {
-        query: { q: query },
-      });
-
-      return results || [];
+      try {
+        const results = await $fetch<SearchResult[]>("/api/search", {
+          query: { q: query },
+        });
+        return results || [];
+      }
+      catch (e) {
+        console.error(`[useSearch] Fetch error: ${e}`);
+        return [];
+      }
     },
     {
       cache: new TtlCache<string, Promise<SearchResult[]>>(TWENTY_FOUR_HOURS),
@@ -82,24 +87,20 @@ export function useSearch() {
 
       // Check for version update before searching
       try {
-        const { version } = await $fetch<{ version: string }>(
-          "/api/docs-version",
-        );
+        const { version } = await $fetch<{ version: string }>("/api/docs-version");
         if (currentDocsVersion.value && currentDocsVersion.value !== version) {
           memoizedSearch.clear();
         }
         currentDocsVersion.value = version;
       }
       catch (e) {
-        console.error("Failed to fetch docs version", e);
+        console.error(`[ERROR]: ${e}`);
       }
 
-      // This will use cache for the same query string
       const results = await memoizedSearch(query);
       return results;
     }
-    catch (error) {
-      console.error("Search error:", error);
+    catch {
       return [];
     }
     finally {

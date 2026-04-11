@@ -11,7 +11,7 @@ export type SiteConfig = {
   links: Links;
 };
 
-const repoUrl = "https://github.com/hetari/shadcn-docs-template";
+const repoUrl = "https://github.com/hetari/sulaf";
 
 export const siteConfig: SiteConfig = {
   name: "shadcn-docs-template",

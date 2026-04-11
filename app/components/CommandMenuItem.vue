@@ -4,7 +4,8 @@ import type { HTMLAttributes } from "vue";
 import { reactiveOmit, useMutationObserver } from "@vueuse/core";
 import { useForwardPropsEmits } from "reka-ui";
 import { cn } from "@/lib/utils";
-import { CommandItem, useCommand } from "./ui/command";
+import type { CommandItem } from "./ui/command";
+import { useCommand } from "./ui/command";
 
 const props = defineProps<ListboxItemProps & { class?: HTMLAttributes["class"] }>();
 
@@ -17,7 +18,7 @@ const delegatedProps = reactiveOmit(props, "class");
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
 
-const itemRef = useTemplateRef<HTMLElement & typeof CommandItem | null>("itemRef");
+const itemRef = useTemplateRef<(HTMLElement & typeof CommandItem) | null>("itemRef");
 
 const { filterState } = useCommand();
 
@@ -32,22 +33,26 @@ const isVisible = computed(() => {
   return extendValue.toLowerCase().includes(filterState.search.toLowerCase());
 });
 
-useMutationObserver(itemRef, (mutations) => {
-  mutations.forEach((mutation) => {
-    if (
-      mutation.type === "attributes"
-      && mutation.attributeName === "data-highlighted"
-      && itemRef.value?.$el.hasAttribute("data-highlighted")
-    ) {
-      emits("highlight");
-    }
-  });
-}, {
-  attributes: true,
-  characterData: true,
-  childList: true,
-  subtree: true,
-});
+useMutationObserver(
+  itemRef,
+  (mutations) => {
+    mutations.forEach((mutation) => {
+      if (
+        mutation.type === "attributes"
+        && mutation.attributeName === "data-highlighted"
+        && itemRef.value?.$el.hasAttribute("data-highlighted")
+      ) {
+        emits("highlight");
+      }
+    });
+  },
+  {
+    attributes: true,
+    characterData: true,
+    childList: true,
+    subtree: true,
+  },
+);
 </script>
 
 <template>
@@ -55,10 +60,15 @@ useMutationObserver(itemRef, (mutations) => {
     v-if="isVisible"
     v-bind="forwarded"
     ref="itemRef"
-    :class="cn(`
-      h-9 rounded-md border border-transparent px-3! font-medium data-highlighted:border-input data-highlighted:bg-input/50 data-[selected=true]:border-input
-      data-[selected=true]:bg-input/50
-    `, props.class)"
+    :class="
+      cn(
+        `
+          h-9 rounded-md border border-transparent px-3! font-medium data-highlighted:border-input data-highlighted:bg-input/50 data-[selected=true]:border-input
+          data-[selected=true]:bg-input/50
+        `,
+        props.class,
+      )
+    "
   >
     <slot />
   </CommandItem>

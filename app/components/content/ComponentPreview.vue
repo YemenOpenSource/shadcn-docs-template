@@ -28,27 +28,16 @@ const Component = loader ? defineAsyncComponent(loader as any) : null;
 </script>
 
 <template>
-  <p
-    v-if="!Component"
-    class="rounded-md border p-4 text-sm text-muted-foreground"
-  >
+  <p v-if="!Component" class="rounded-md border p-4 text-sm text-muted-foreground">
     Component
-    <code
-      class="relative rounded-sm bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm"
-    >
+    <code class="relative rounded-sm bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
       {{ name }}
     </code>
     not found in <code class="font-mono text-xs">components/demo</code> or
     <code class="font-mono text-xs">components/ui</code>.
   </p>
 
-  <ComponentPreviewTabs
-    v-else
-    :class="props.class"
-    :align
-    :hide-code
-    :component="Component"
-  >
+  <ComponentPreviewTabs v-else :class="props.class" :align :hide-code :component="Component">
     <ComponentSource v-if="!hideCode" :name :collapsible="false" />
   </ComponentPreviewTabs>
 </template>

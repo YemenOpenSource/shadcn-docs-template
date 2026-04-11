@@ -13,9 +13,7 @@ export default defineEventHandler(async (event) => {
 
   const contentPath = `/${path.replace(MD_EXT_REGEX, "")}`;
 
-  const page = (await queryCollection(event, "content")
-    .path(contentPath)
-    .first()) as any;
+  const page = (await queryCollection(event, "content").path(contentPath).first()) as any;
 
   if (!page) {
     throw createError({

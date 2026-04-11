@@ -10,9 +10,7 @@ export function useIsMac(): Ref<boolean> {
   const isMac = ref(false);
   onMounted(() => {
     const nav = navigator as any;
-    const platform = nav.userAgentData?.platform
-      ?? nav.platform
-      ?? nav.userAgent;
+    const platform = nav.userAgentData?.platform ?? nav.platform ?? nav.userAgent;
     isMac.value = String(platform).toUpperCase().includes("MAC");
   });
   return isMac;

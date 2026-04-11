@@ -15,27 +15,21 @@ const stars = computed<string | null>(() => {
   if (count !== 0 && !count) {
     return null;
   }
-  return count >= 1000
-    ? `${(count / 1000).toFixed(1)}k`
-    : count.toLocaleString();
-});
-
-watch(error, (err) => {
-  if (err) {
-    console.error("Failed to fetch GitHub stars:", err);
-  }
+  return count >= 1000 ? `${(count / 1000).toFixed(1)}k` : count.toLocaleString();
 });
 </script>
 
 <template>
   <Button as-child class="h-8 shadow-none" size="sm" variant="ghost">
-    <NuxtLink :to="siteConfig.links.github" rel="noreferrer" target="_blank" prefetch-on="interaction">
+    <NuxtLink
+      :to="siteConfig.links.github"
+      rel="noreferrer"
+      target="_blank"
+      prefetch-on="interaction"
+    >
       <GithubIcon />
-      <span
-        v-if="!pending && (stars || error)"
-        class="text-xs text-muted-foreground tabular-nums"
-      >
-        {{ stars || "—" }}
+      <span v-if="!pending && (stars || error)" class="text-xs text-muted-foreground tabular-nums">
+        {{ stars || '—' }}
       </span>
       <Skeleton v-else class="h-4 w-8" />
     </NuxtLink>

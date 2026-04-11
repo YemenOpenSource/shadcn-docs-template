@@ -31,9 +31,7 @@ export const useConfig = createSharedComposable(() => {
         return;
       }
       // Remove any existing layout classes
-      document.documentElement.classList.remove(
-        ...LAYOUTS.map(l => `layout-${l}`),
-      );
+      document.documentElement.classList.remove(...LAYOUTS.map(l => `layout-${l}`));
       // Add the new layout class
       document.documentElement.classList.add(`layout-${newLayout}`);
     },

@@ -49,18 +49,18 @@ export function getColors() {
 
         return {
           name,
-          colors: color.map((color) => {
-            const rgb = color.rgb.replace(RGB_RE, "$1 $2 $3");
+          colors: color.map((c) => {
+            const rgb = c.rgb.replace(RGB_RE, "$1 $2 $3");
 
             return {
-              ...color,
+              ...c,
               name,
-              id: `${name}-${color.scale}`,
-              className: `${name}-${color.scale}`,
-              var: `--color-${name}-${color.scale}`,
+              id: `${name}-${c.scale}`,
+              className: `${name}-${c.scale}`,
+              var: `--color-${name}-${c.scale}`,
               rgb,
-              hsl: color.hsl.replace(HSL_RE, "$1 $2 $3"),
-              oklch: `oklch(${color.oklch.replace(OKLCH_RE, "$1 $2 $3")})`,
+              hsl: c.hsl.replace(HSL_RE, "$1 $2 $3"),
+              oklch: `oklch(${c.oklch.replace(OKLCH_RE, "$1 $2 $3")})`,
               foreground: getForegroundFromBackground(rgb),
             };
           }),
@@ -74,15 +74,13 @@ export function getColors() {
 
 export type Color = ReturnType<typeof getColors>[number]["colors"][number];
 
+function toLinear(number: number): number {
+  const base = number / 255;
+  return base <= 0.04045 ? base / 12.92 : ((base + 0.055) / 1.055) ** 2.4;
+}
+
 function getForegroundFromBackground(rgb: string) {
   const [r, g, b] = rgb.split(" ").map(Number);
-
-  function toLinear(number: number): number {
-    const base = number / 255;
-    return base <= 0.04045
-      ? base / 12.92
-      : ((base + 0.055) / 1.055) ** 2.4;
-  }
 
   const luminance
     = 0.2126 * toLinear(r ?? 0) + 0.7152 * toLinear(g ?? 0) + 0.0722 * toLinear(b ?? 0);

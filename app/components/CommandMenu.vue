@@ -37,10 +37,7 @@ const pmToDlxCommand: Record<string, string> = {
 
 const packageManager = config.config.value.packageManager || "pnpm";
 
-function handlePageHighlight(
-  isComponent: boolean,
-  item: { path: string; title?: string },
-) {
+function handlePageHighlight(isComponent: boolean, item: { path: string; title?: string }) {
   if (isComponent) {
     const componentName = item.path.split("/").pop();
     selectedType.value = "component";
@@ -52,11 +49,7 @@ function handlePageHighlight(
   }
 }
 
-function handleBlockHighlight(block: {
-  name: string;
-  description: string;
-  categories: string[];
-}) {
+function handleBlockHighlight(block: { name: string; description: string; categories: string[] }) {
   selectedType.value = "block";
   copyPayload.value = `${pmToDlxCommand[packageManager]} shadcn-vue@latest add ${block.name}`;
 }
@@ -87,12 +80,7 @@ onMounted(() => {
       e.preventDefault();
       open.value = !open.value;
     }
-    if (
-      e.key === "c"
-      && (e.metaKey || e.ctrlKey)
-      && open.value
-      && copyPayload.value
-    ) {
+    if (e.key === "c" && (e.metaKey || e.ctrlKey) && open.value && copyPayload.value) {
       runCommand(copy);
     }
   };
@@ -111,13 +99,12 @@ onMounted(() => {
             'relative h-8 w-full justify-start bg-surface pl-3 font-medium text-foreground shadow-none sm:pr-12 md:w-48 lg:w-56 xl:w-64 dark:bg-card',
           )
         "
-        @click="open = true"
       >
         <span class="hidden lg:inline-flex">Search documentation...</span>
         <span class="inline-flex lg:hidden">Search...</span>
         <div class="absolute top-1.5 right-1.5 hidden gap-1 sm:flex">
           <KbdGroup>
-            <Kbd class="border">{{ isMac ? "⌘" : "Ctrl" }}</Kbd>
+            <Kbd class="border">{{ isMac ? '⌘' : 'Ctrl' }}</Kbd>
             <Kbd class="border">K</Kbd>
           </KbdGroup>
         </div>
@@ -138,18 +125,17 @@ onMounted(() => {
           **:data-[slot=command-input-wrapper]:h-9! **:data-[slot=command-input-wrapper]:rounded-md **:data-[slot=command-input-wrapper]:border
           **:data-[slot=command-input-wrapper]:border-input **:data-[slot=command-input-wrapper]:bg-input/50
         "
-        :filter="(value: string, search: string, keywords?: string[]) => {
-          const extendValue = `${value} ${keywords?.join(' ') || ''}`
-          if (extendValue.toLowerCase().includes(search.toLowerCase())) {
-            return 1
+        :filter="
+          (value: string, search: string, keywords?: string[]) => {
+            const extendValue = `${value} ${keywords?.join(' ') || ''}`
+            if (extendValue.toLowerCase().includes(search.toLowerCase())) {
+              return 1
+            }
+            return 0
           }
-          return 0
-        }"
+        "
       >
-        <CommandInput
-          v-model="searchQuery"
-          placeholder="Search documentation..."
-        />
+        <CommandInput v-model="searchQuery" placeholder="Search documentation..." />
         <CommandList class="no-scrollbar min-h-80 scroll-pt-2 scroll-pb-1.5">
           <CommandEmpty class="py-12 text-center text-sm text-muted-foreground">
             <span v-if="isSearching">Searching...</span>
@@ -165,24 +151,21 @@ onMounted(() => {
             <CommandItem
               v-for="result in searchResults"
               :key="result.path"
-              :value="`${result.title} ${result.description || ''} ${
-                result.path
-              }`"
+              :value="`${result.title} ${result.description || ''} ${result.path} ${result.excerpt || ''}`"
               @select="() => runCommand(() => router.push(result.path))"
               @highlight="
                 () => {
-                  selectedType = 'page';
-                  copyPayload = '';
+                  selectedType = 'page'
+                  copyPayload = ''
                 }
               "
             >
               <ChevronRight />
               <div class="flex flex-col">
                 <span class="font-medium">{{ result.title }}</span>
-                <span
-                  v-if="result.description"
-                  class="text-xs text-muted-foreground"
-                >{{ result.description }}</span>
+                <span v-if="result.description" class="text-xs text-muted-foreground">{{
+                  result.description
+                }}</span>
                 <span
                   v-if="result.excerpt"
                   class="mt-1 line-clamp-1 text-xs text-muted-foreground"
@@ -193,11 +176,7 @@ onMounted(() => {
 
           <!-- Navigation Items -->
           <CommandGroup
-            v-if="
-              navItems
-                && navItems.length > 0
-                && (!searchQuery || searchQuery.length < 2)
-            "
+            v-if="navItems && navItems.length > 0 && (!searchQuery || searchQuery.length < 2)"
             heading="Pages"
             class="p-0! **:data-[slot=command-group-heading]:scroll-mt-16 **:data-[slot=command-group-heading]:p-3! **:data-[slot=command-group-heading]:pb-1!"
           >
@@ -208,8 +187,8 @@ onMounted(() => {
               @select="() => runCommand(() => router.push(item.href))"
               @highlight="
                 () => {
-                  selectedType = 'page';
-                  copyPayload = '';
+                  selectedType = 'page'
+                  copyPayload = ''
                 }
               "
             >
@@ -227,17 +206,13 @@ onMounted(() => {
           >
             <template v-if="group.type === 'group'">
               <CommandItem
-                v-for="item in group.children?.filter((i: NavigationItem) => i.type === 'page' || i.type === 'component')"
+                v-for="item in group.children?.filter(
+                  (i: NavigationItem) => i.type === 'page' || i.type === 'component',
+                )"
                 :key="item.title"
-                :value="
-                  item.title?.toString() ? `${group.title} ${item.title}` : ''
-                "
-                :keywords="
-                  item.type === 'component' ? ['component'] : undefined
-                "
-                @highlight="
-                  () => handlePageHighlight(item.type === 'component', item)
-                "
+                :value="item.title?.toString() ? `${group.title} ${item.title}` : ''"
+                :keywords="item.type === 'component' ? ['component'] : undefined"
+                @highlight="() => handlePageHighlight(item.type === 'component', item)"
                 @select="() => runCommand(() => router.push(item.path))"
               >
                 <div
@@ -277,24 +252,16 @@ onMounted(() => {
               v-for="block in blocks"
               :key="block.name"
               :value="block.name"
-              :keywords="[
-                'block',
-                block.name,
-                block.description,
-                ...block.categories,
-              ]"
+              :keywords="['block', block.name, block.description, ...block.categories]"
               @highlight="() => handleBlockHighlight(block)"
               @select="
-                () =>
-                  runCommand(() =>
-                    router.push(`/blocks/${block.categories[0]}#${block.name}`),
-                  )
+                () => runCommand(() => router.push(`/blocks/${block.categories[0]}#${block.name}`))
               "
             >
               <Square />
               {{ block.description }}
               <span
-                class="ml-auto font-mono text-xs font-normal text-muted-foreground tabular-nums"
+                class="ms-auto font-mono text-xs font-normal text-muted-foreground tabular-nums"
               >
                 {{ block.name }}
               </span>
@@ -317,7 +284,7 @@ onMounted(() => {
         </div>
         <Separator v-if="copyPayload" orientation="vertical" class="h-4!" />
         <div v-if="copyPayload" class="flex items-center gap-1">
-          <CommandMenuKbd>{{ isMac ? "⌘" : "Ctrl" }}</CommandMenuKbd>
+          <CommandMenuKbd>{{ isMac ? '⌘' : 'Ctrl' }}</CommandMenuKbd>
           <CommandMenuKbd>C</CommandMenuKbd>
           {{ copyPayload }}
         </div>

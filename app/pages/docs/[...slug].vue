@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   ChevronLeft,
   ChevronRight,
+  Clock,
 } from "lucide-vue-next";
 
 type DocPage = ContentCollectionItem & {
@@ -22,43 +23,34 @@ type DocPage = ContentCollectionItem & {
 const route = useRoute();
 
 const { data: page } = await useAsyncData(route.path, () => {
-  return queryCollection("content")
-    .path(route.path)
-    .first() as Promise<DocPage | null>;
+  return queryCollection("content").path(route.path).first() as Promise<DocPage | null>;
 });
 
 if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: "Page not found" });
 }
 
-const { data: neighbours } = await useAsyncData(
-  `surround-${route.path}`,
-  () => {
-    return queryCollectionItemSurroundings("content", route.path);
-  },
-);
+const { data: neighbours } = await useAsyncData(`surround-${route.path}`, () => {
+  return queryCollectionItemSurroundings("content", route.path);
+});
 
 useSeoMeta({
   title: page.value.title,
   description: page.value.description,
   ogTitle: page.value.title,
   ogDescription: page.value.description,
-  twitterCard: "summary_large_image",
 });
 
-defineOgImageComponent("Custom", {
+defineOgImage("Custom.takumi", {
   title: page.value.title,
   description: page.value.description,
 });
 </script>
 
 <template>
-  <div v-if="page">
-    <div
-      data-slot="docs"
-      class="flex items-stretch text-[1.05rem] sm:text-[15px] xl:w-full"
-    >
-      <div class="flex min-w-0 flex-1 flex-col">
+  <div v-if="page" class="h-full">
+    <div data-slot="docs" class="flex h-full items-stretch text-[1.05rem] sm:text-[15px] xl:w-full">
+      <div class="flex h-auto min-w-0 flex-1 flex-col">
         <div class="h-(--top-spacing) shrink-0" />
         <div
           class="mx-auto flex w-full max-w-2xl min-w-0 flex-1 flex-col gap-8 px-4 py-6 text-neutral-800 md:px-0 lg:py-8 dark:text-neutral-300"
@@ -89,7 +81,7 @@ defineOgImageComponent("Custom", {
                     v-if="neighbours?.[0]"
                     variant="secondary"
                     size="icon"
-                    class="extend-touch-target ml-auto size-8 shadow-none md:size-7"
+                    class="extend-touch-target ms-auto size-8 shadow-none md:size-7"
                     as-child
                   >
                     <NuxtLink :to="neighbours[0].path" prefetch-on="interaction">
@@ -120,42 +112,47 @@ defineOgImageComponent("Custom", {
             </div>
             <div v-if="page.links" class="flex items-center space-x-2 pt-4">
               <Badge v-if="page.links.doc" as-child variant="secondary">
-                <NuxtLink :to="page.links.doc" target="_blank" rel="noreferrer" prefetch-on="interaction">
+                <NuxtLink
+                  :to="page.links.doc"
+                  target="_blank"
+                  rel="noreferrer"
+                  prefetch-on="interaction"
+                >
                   Docs <ArrowUpRight />
                 </NuxtLink>
               </Badge>
               <Badge v-if="page.links.api" as-child variant="secondary">
-                <NuxtLink :to="page.links.api" target="_blank" rel="noreferrer" prefetch-on="interaction">
+                <NuxtLink
+                  :to="page.links.api"
+                  target="_blank"
+                  rel="noreferrer"
+                  prefetch-on="interaction"
+                >
                   API Reference <ArrowUpRight />
                 </NuxtLink>
               </Badge>
             </div>
           </div>
 
-          <ContentRenderer
-            :value="page"
-            class="w-full flex-1 *:data-[slot=alert]:first:mt-0"
-          />
+          <ContentRenderer :value="page" class="w-full flex-1 *:data-[slot=alert]:first:mt-0" />
 
-          <!-- <p
+          <p
             v-if="page.lastUpdated"
             class="flex items-center gap-1.5 text-sm text-muted-foreground"
           >
             <Clock class="size-3.5" />
             Last updated on
-            {{ new Date(page.lastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
-          </p> -->
+            {{
+              new Date(page.lastUpdated).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })
+            }}
+          </p>
         </div>
-        <div
-          class="mx-auto flex h-16 w-full max-w-2xl items-center gap-2 px-4 md:px-0"
-        >
-          <Button
-            v-if="neighbours?.[0]"
-            variant="secondary"
-            size="sm"
-            as-child
-            class="shadow-none"
-          >
+        <div class="mx-auto flex h-16 w-full max-w-2xl items-center gap-2 px-4 md:px-0">
+          <Button v-if="neighbours?.[0]" variant="secondary" size="sm" as-child class="shadow-none">
             <NuxtLink prefetch-on="interaction" :to="neighbours[0].path">
               <ChevronLeft /> {{ neighbours[0].title }}
             </NuxtLink>
@@ -164,7 +161,7 @@ defineOgImageComponent("Custom", {
             v-if="neighbours?.[1]"
             variant="secondary"
             size="sm"
-            class="ml-auto shadow-none"
+            class="ms-auto shadow-none"
             as-child
           >
             <NuxtLink :to="neighbours[1].path" prefetch-on="interaction">
@@ -173,18 +170,14 @@ defineOgImageComponent("Custom", {
           </Button>
         </div>
       </div>
-
       <div
         class="
-          sticky top-[calc(var(--header-height)+1px)] z-30 ml-auto hidden h-[calc(100svh-var(--header-height)-var(--footer-height))] w-72 flex-col gap-4 overflow-hidden
+          sticky top-[calc(var(--header-height)+1px)] z-30 ms-auto hidden h-[calc(100svh-var(--header-height)-var(--footer-height))] w-72 flex-col gap-4 overflow-hidden
           overscroll-none pb-8 xl:flex
         "
       >
         <div class="h-(--top-spacing) shrink-0" />
-        <div
-          v-if="page.body.toc?.links.length"
-          class="no-scrollbar overflow-y-auto px-8"
-        >
+        <div v-if="page.body.toc?.links.length" class="no-scrollbar overflow-y-auto px-8">
           <DocsTableOfContents :toc="page.body.toc" />
           <div class="h-12" />
         </div>

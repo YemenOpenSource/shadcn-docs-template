@@ -1,3 +1,17 @@
+export type SidebarNavigationItem = {
+  title: string;
+  path: string;
+  stem?: string;
+  children?: SidebarNavigationItem[];
+  new?: boolean;
+  beta?: boolean;
+  soon?: boolean;
+  hide?: boolean;
+  navigation?: {
+    icon?: string;
+  };
+};
+
 export type NavItem = {
   name: string;
   href: string;
@@ -5,14 +19,17 @@ export type NavItem = {
 
 /** Top-level section pills shown in the sidebar and mobile menu. */
 export const NAV_SECTIONS: NavItem[] = [
-  { name: "Get Started", href: "/docs/getting-started/introduction" },
+  { name: "Get Started", href: "/docs/introduction" },
+  { name: "Installation", href: "/docs/installation" },
+  { name: "Components", href: "/docs/components" },
+  { name: "Animations", href: "/docs/animation" },
 ];
 
 /** Sidebar group titles (lowercased) that should never be rendered. */
 export const SIDEBAR_EXCLUDED_SECTIONS: string[] = [];
 
 /** Individual page paths that should be hidden from the sidebar page list. */
-export const SIDEBAR_EXCLUDED_PAGES: string[] = ["/docs/introduction"];
+export const SIDEBAR_EXCLUDED_PAGES: string[] = [];
 
 /**
  * Top-level/main site navigation items primarily used in the site header.
@@ -20,11 +37,11 @@ export const SIDEBAR_EXCLUDED_PAGES: string[] = ["/docs/introduction"];
  */
 export const MAIN_NAVIGATION: NavItem[] = [
   {
-    href: "/docs/getting-started/introduction",
+    href: "/docs/introduction",
     name: "Docs",
   },
   {
-    href: "/docs/prose-demo",
-    name: "Demo",
+    href: "/docs/components",
+    name: "Components",
   },
 ];

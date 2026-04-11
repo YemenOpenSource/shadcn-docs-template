@@ -10,18 +10,11 @@ const open = ref(false);
 </script>
 
 <template>
-  <Collapsible
-    v-model:open="open"
-    :class="cn('group/collapsible relative md:-mx-1', props.class)"
-  >
+  <Collapsible v-model:open="open" :class="cn('group/collapsible relative md:-mx-1', props.class)">
     <CollapsibleTrigger as-child>
       <div class="absolute top-1.5 right-9 z-10 flex items-center">
-        <Button
-          variant="ghost"
-          size="sm"
-          class="h-7 rounded-md px-2 text-muted-foreground"
-        >
-          {{ open ? "Collapse" : "Expand" }}
+        <Button variant="ghost" size="sm" class="h-7 rounded-md px-2 text-muted-foreground">
+          {{ open ? 'Collapse' : 'Expand' }}
         </Button>
         <Separator orientation="vertical" class="mx-1.5 h-4!" />
       </div>
@@ -39,7 +32,7 @@ const open = ref(false);
         group-data-[state=open]/collapsible:hidden
       "
     >
-      {{ open ? "Collapse" : "Expand" }}
+      {{ open ? 'Collapse' : 'Expand' }}
     </CollapsibleTrigger>
   </Collapsible>
 </template>

@@ -8,7 +8,7 @@ const docData = computed(() => data.value!.find(i => i.stem === "docs")!);
     <SidebarProvider
       class="
         min-h-min flex-1 items-start px-0 [--sidebar-width:220px] [--top-spacing:0] lg:grid lg:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] lg:[--sidebar-width:240px]
-        lg:[--top-spacing:calc(var(--spacing)*4)] 3xl:fixed:container 3xl:fixed:px-3
+        lg:[--top-spacing:--spacing(4)] 3xl:fixed:container 3xl:fixed:px-3
       "
     >
       <DocsSidebar :tree="docData" />

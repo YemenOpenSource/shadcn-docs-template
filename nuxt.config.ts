@@ -1,11 +1,46 @@
 import tailwindcss from "@tailwindcss/vite";
+import { createHash } from "node:crypto";
+import { readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+
+// Compute the docs version at BUILD TIME by hashing all .md files.
+// This avoids reading the filesystem at request time, which fails in serverless.
+function computeDocsVersion(): string {
+  try {
+    const contentDir = join(__dirname, "content");
+    const files = getAllMdFiles(contentDir);
+    const hash = createHash("md5");
+    for (const file of files.sort()) {
+      const stats = statSync(file);
+      hash.update(`${file}:${stats.mtimeMs}`);
+    }
+    return hash.digest("hex").slice(0, 8);
+  }
+  catch {
+    return "unknown";
+  }
+}
+
+function getAllMdFiles(dirPath: string, files: string[] = []): string[] {
+  for (const entry of readdirSync(dirPath)) {
+    const full = join(dirPath, entry);
+    if (statSync(full).isDirectory()) {
+      getAllMdFiles(full, files);
+    }
+    else if (entry.endsWith(".md")) {
+      files.push(full);
+    }
+  }
+  return files;
+}
+
+const DOCS_VERSION = computeDocsVersion();
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
   modules: [
-    "@nuxt/eslint",
     "shadcn-nuxt",
     "@vueuse/nuxt",
     "@nuxtjs/color-mode",
@@ -17,30 +52,20 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
   ],
 
+  runtimeConfig: {
+    docsVersion: DOCS_VERSION,
+  },
+
   routeRules: {
-    // Home page - static content, prerender at build time
-    "/": {
-      prerender: true,
+    // redurct from /docs/animation to /docs/components/animation
+    "/docs/animation": {
+      redirect: "/docs/components",
     },
-    // Docs layout - uses navigation data, cache for 1 hour
-    "/docs": {
-      isr: 3600,
-    },
-    // All docs pages - content pages that don't change frequently
+
+    // Docs layout - uses navigation data, all docs pages
     // ISR: Generate at build/first request, cache for 1 hour, regenerate in background
     "/docs/**": {
       isr: 3600,
-    },
-    // API routes - additional caching (search already has its own cache)
-    "/api/search": {
-      headers: {
-        "Cache-Control": "public, max-age=3600, s-maxage=3600",
-      },
-    },
-    "/api/docs-version": {
-      headers: {
-        "Cache-Control": "public, max-age=300, s-maxage=300",
-      },
     },
     // Raw markdown content endpoint
     "/raw/**": {
@@ -51,7 +76,7 @@ export default defineNuxtConfig({
   },
 
   ogImage: {
-    fonts: ["Geist:400", "Geist:500", "Geist:600"],
+    fontSubsets: ["Geist:400", "Geist:500", "Geist:600"],
     defaults: {
       width: 1200,
       height: 630,
@@ -61,16 +86,13 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   vite: {
+    optimizeDeps: {
+      include: ["reka-ui", "class-variance-authority", "clsx", "tailwind-merge", "lucide-vue-next"],
+    },
     plugins: [
       // https://github.com/tailwindlabs/tailwindcss/discussions/19655
       tailwindcss(),
     ],
-  },
-
-  eslint: {
-    config: {
-      standalone: false,
-    },
   },
 
   shadcn: {
@@ -129,10 +151,6 @@ export default defineNuxtConfig({
         highlight: false,
       },
     },
-    database: {
-      type: "sqlite",
-      filename: ".data/content.db",
-    },
     // required to prevent error related to better-sqlite3 during build and deploy
     experimental: {
       sqliteConnector: "better-sqlite3",
@@ -144,6 +162,11 @@ export default defineNuxtConfig({
   },
 
   nitro: {
+    devStorage: {
+      cache: {
+        driver: "memory",
+      },
+    },
     prerender: {
       crawlLinks: true,
       routes: ["/"],
@@ -166,17 +189,17 @@ export default defineNuxtConfig({
       ],
     },
   },
-  // hooks: {
-  //   "content:file:afterParse": function ({ file, content }) {
-  //     if (file.path && file.path.endsWith(".md")) {
-  //       try {
-  //         const stats = require("node:fs").statSync(file.path);
-  //         content.lastUpdated = stats.mtime.toISOString();
-  //       }
-  //       catch (e) {
-  //         // ignore
-  //       }
-  //     }
-  //   },
-  // },
+  hooks: {
+    "content:file:afterParse": function ({ file, content }) {
+      if (file.path && file.path.endsWith(".md")) {
+        try {
+          const stats = statSync(file.path);
+          content.lastUpdated = stats.mtime.toISOString();
+        }
+        catch {
+          // ignore
+        }
+      }
+    },
+  },
 });

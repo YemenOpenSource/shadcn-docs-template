@@ -12,13 +12,7 @@ const { path } = toRefs(useRoute());
 
 <template>
   <nav :class="cn('items-center', props.class)" aria-label="Main Navigation">
-    <Button
-      v-for="item in items"
-      :key="item.href"
-      as-child
-      size="sm"
-      variant="ghost"
-    >
+    <Button v-for="item in items" :key="item.href" as-child size="sm" variant="ghost">
       <NuxtLink
         prefetch-on="interaction"
         :class="

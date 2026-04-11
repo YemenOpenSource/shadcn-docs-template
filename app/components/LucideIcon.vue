@@ -22,11 +22,7 @@ const iconComponent = computed(() => {
     .join("");
 
   // Check for the icon in the LucideIcons object
-  return (
-    (LucideIcons as any)[pascalName]
-    || (LucideIcons as any)[`${pascalName}Icon`]
-    || null
-  );
+  return (LucideIcons as any)[pascalName] || (LucideIcons as any)[`${pascalName}Icon`] || null;
 });
 </script>
 

@@ -13,9 +13,9 @@ const url = computed(() => {
 
 const route = useRoute();
 
-function getPromptUrl(baseURL: string, url: string) {
+function getPromptUrl(baseURL: string, fullUrl: string) {
   return `${baseURL}?q=${encodeURIComponent(
-    `I’m looking at this shadcn-vue documentation: ${url}.
+    `I’m looking at this shadcn-vue documentation: ${fullUrl}.
 Help me understand how to use it. Be ready to explain concepts, give examples, or help debug based on it.
   `,
   )}`;
@@ -73,11 +73,11 @@ const menuItems = {
   //     ],
   //   ),
 
-  chatgpt: (url: string) =>
+  chatgpt: (fullUrl: string) =>
     h(
       "a",
       {
-        href: getPromptUrl("https://chatgpt.com", url),
+        href: getPromptUrl("https://chatgpt.com", fullUrl),
         target: "_blank",
         rel: "noopener noreferrer",
       },
@@ -97,11 +97,11 @@ const menuItems = {
       ],
     ),
 
-  claude: (url: string) =>
+  claude: (fullUrl: string) =>
     h(
       "a",
       {
-        href: getPromptUrl("https://claude.ai/new", url),
+        href: getPromptUrl("https://claude.ai/new", fullUrl),
         target: "_blank",
         rel: "noopener noreferrer",
       },
@@ -152,11 +152,7 @@ const { copy, copied } = useClipboard();
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" class="shadow-none">
-          <DropdownMenuItem
-            v-for="[key, value] in Object.entries(menuItems)"
-            :key="key"
-            as-child
-          >
+          <DropdownMenuItem v-for="[key, value] in Object.entries(menuItems)" :key="key" as-child>
             <component :is="value(url)" />
           </DropdownMenuItem>
         </DropdownMenuContent>

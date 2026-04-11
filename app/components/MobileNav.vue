@@ -1,25 +1,49 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
-import { NAV_SECTIONS } from "@/lib/navigation";
-import { cn } from "@/lib/utils";
-import { showMcpDocs } from "~/lib/flag";
+import type { SidebarNavigationItem } from "@/lib/navigation";
+import {
+  NAV_SECTIONS,
+  SIDEBAR_EXCLUDED_PAGES,
+  SIDEBAR_EXCLUDED_SECTIONS,
 
-/**
- * Relaxed typing for `tree` to avoid template type errors related to
- * optional navigation fields (e.g. `navigation?.icon`). Using `any[]`
- * here keeps the template-friendly access while preserving some structure
- * for `items`.
- */
+} from "@/lib/navigation";
+import { cn } from "@/lib/utils";
+
 const props = defineProps<{
   class?: HTMLAttributes["class"];
-  tree: any[]; // relaxed typing to avoid missing property errors in template
+  tree: SidebarNavigationItem[]; // relaxed typing to avoid missing property errors in template
   items: { name: string; href: string }[];
 }>();
 
 const router = useRouter();
 const open = ref(false);
+
+const rootPages = computed(() => {
+  const root = props.tree?.[0];
+  if (!root)
+    return [];
+  return NAV_SECTIONS.map((section) => {
+    const treeItem = (root.children || []).find(item => item.path === section.href);
+    return {
+      path: section.href,
+      ...treeItem,
+      title: section.name,
+    } as SidebarNavigationItem;
+  });
+});
+
+const folderGroups = computed(() => {
+  const root = props.tree?.[0];
+  if (!root)
+    return [];
+  return (root.children || []).filter(
+    (item: SidebarNavigationItem) =>
+      (item.children || item.soon)
+      && !SIDEBAR_EXCLUDED_SECTIONS.includes(item.title.toLocaleLowerCase()),
+  );
+});
 
 function handleNavigate(path: string) {
   router.push(path);
@@ -63,9 +87,7 @@ function handleNavigate(path: string) {
           </div>
           <span class="sr-only">Toggle Menu</span>
         </div>
-        <span class="flex h-8 items-center text-lg leading-none font-medium">
-          Menu
-        </span>
+        <span class="flex h-8 items-center text-lg leading-none font-medium"> Menu </span>
       </Button>
     </PopoverTrigger>
 
@@ -105,40 +127,73 @@ function handleNavigate(path: string) {
             </NuxtLink>
           </div>
         </div>
-        <div v-if="NAV_SECTIONS.length" class="flex flex-col gap-4">
+
+        <!-- Sections (Root Pages) -->
+        <div v-if="rootPages.length" class="flex flex-col gap-4">
           <div class="text-sm font-medium text-muted-foreground">
             Sections
           </div>
           <div class="flex flex-col gap-3">
             <NuxtLink
-              v-for="{ name, href } in NAV_SECTIONS"
-              v-show="!(!showMcpDocs && href.includes('/mcp'))"
-              :key="name"
+              v-for="item in rootPages"
+              :key="item.path"
               prefetch-on="interaction"
-              :to="href"
-              class="text-2xl font-medium"
-              @click="handleNavigate(href)"
+              :to="item.path"
+              class="flex items-center gap-2 text-2xl font-medium"
+              @click="handleNavigate(item.path)"
             >
-              {{ name }}
+              <LucideIcon
+                v-if="item.navigation?.icon"
+                :name="item.navigation.icon"
+                class="size-6 shrink-0"
+              />
+              {{ item.title }}
+              <span
+                v-if="item.new"
+                class="size-2 rounded-full border-0 bg-green-600 dark:bg-green-500"
+              />
+              <span
+                v-else-if="item.beta"
+                class="size-2 rounded-full border-0 bg-orange-600 dark:bg-orange-500"
+              />
+              <Badge
+                v-if="item.soon"
+                variant="secondary"
+                class="
+                  ms-auto flex h-5 items-center justify-center rounded-md border bg-secondary/50 px-2 text-[0.7rem] font-semibold tracking-widest text-muted-foreground uppercase
+                "
+              >
+                Soon
+              </Badge>
             </NuxtLink>
           </div>
         </div>
+
+        <!-- Folder Groups -->
         <div class="flex flex-col gap-8">
-          <template v-for="(group, index) in tree[0]?.children" :key="index">
+          <template v-for="group in folderGroups" :key="group.title">
             <div class="flex flex-col gap-4">
-              <div class="text-sm font-medium text-muted-foreground">
+              <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 {{ group.title }}
+                <Badge
+                  v-if="group.soon"
+                  variant="secondary"
+                  class="flex h-4 items-center justify-center rounded-sm bg-secondary/50 px-1.5 text-[0.6rem] font-semibold tracking-wider uppercase"
+                >
+                  Soon
+                </Badge>
               </div>
               <div class="flex flex-col gap-3">
                 <NuxtLink
-                  v-for="item in group.children"
+                  v-for="item in (group.children || []).filter(
+                    child => !child.hide && !SIDEBAR_EXCLUDED_PAGES.includes(child.path),
+                  )"
                   :key="item.path"
                   prefetch-on="interaction"
                   class="flex items-center gap-2 text-2xl font-medium"
                   :to="item.path"
                   @click="handleNavigate(item.path)"
                 >
-                  <!-- `item.navigation` may be missing; relaxed typing on `tree` avoids TS template errors -->
                   <LucideIcon
                     v-if="item.navigation?.icon"
                     :name="item.navigation.icon"
@@ -147,8 +202,22 @@ function handleNavigate(path: string) {
                   {{ item.title }}
                   <span
                     v-if="item.new"
-                    class="flex size-2 rounded-full bg-green-500"
+                    class="size-2 rounded-full border-0 bg-green-600 dark:bg-green-500"
                   />
+                  <span
+                    v-else-if="item.beta"
+                    class="size-2 rounded-full border-0 bg-orange-600 dark:bg-orange-500"
+                  />
+                  <Badge
+                    v-if="item.soon"
+                    variant="secondary"
+                    class="
+                      ms-auto flex h-5 items-center justify-center rounded-md border bg-secondary/50 px-2 text-[0.7rem] font-semibold tracking-widest text-muted-foreground
+                      uppercase
+                    "
+                  >
+                    Soon
+                  </Badge>
                 </NuxtLink>
               </div>
             </div>
