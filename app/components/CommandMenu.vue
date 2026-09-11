@@ -64,6 +64,13 @@ function runCommand(command: () => unknown) {
   command();
 }
 
+// Same scorer the server uses to rank the "Search Results" group, so every
+// group in this palette is ranked by one algorithm rather than two.
+function filterCommandItem(value: string, search: string, keywords?: string[]) {
+  const extendValue = `${value} ${keywords?.join(" ") || ""}`;
+  return matchScore(extendValue, search);
+}
+
 const { copy } = useClipboard({ source: copyPayload });
 
 onMounted(() => {
@@ -125,15 +132,7 @@ onMounted(() => {
           **:data-[slot=command-input-wrapper]:h-9! **:data-[slot=command-input-wrapper]:rounded-md **:data-[slot=command-input-wrapper]:border
           **:data-[slot=command-input-wrapper]:border-input **:data-[slot=command-input-wrapper]:bg-input/50
         "
-        :filter="
-          (value: string, search: string, keywords?: string[]) => {
-            const extendValue = `${value} ${keywords?.join(' ') || ''}`
-            if (extendValue.toLowerCase().includes(search.toLowerCase())) {
-              return 1
-            }
-            return 0
-          }
-        "
+        :filter="filterCommandItem"
       >
         <CommandInput v-model="searchQuery" placeholder="Search documentation..." />
         <CommandList class="no-scrollbar min-h-80 scroll-pt-2 scroll-pb-1.5">

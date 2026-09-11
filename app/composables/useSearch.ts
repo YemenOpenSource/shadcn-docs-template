@@ -1,14 +1,6 @@
 import type { UseMemoizeCache } from "@vueuse/core";
 import { refDebounced, useMemoize } from "@vueuse/core";
 
-export type SearchResult = {
-  title: string;
-  description?: string;
-  path: string;
-  body?: string;
-  excerpt?: string;
-};
-
 const TWENTY_FOUR_HOURS = 1000 * 60 * 60 * 24;
 class TtlCache<Key, Value> implements UseMemoizeCache<Key, Value> {
   private cache = new Map<Key, { value: Value; timestamp: number }>();

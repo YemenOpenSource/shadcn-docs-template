@@ -1,14 +1,6 @@
 import type { ContentCollectionItem } from "@nuxt/content";
 import { queryCollection } from "@nuxt/content/server";
 
-export type SearchResult = {
-  title: string;
-  description?: string;
-  path: string;
-  body?: string;
-  excerpt?: string;
-};
-
 export default defineCachedEventHandler(
   async (event) => {
     // Set cache headers directly in the handler (CDN/Browser)
@@ -71,28 +63,8 @@ export default defineCachedEventHandler(
         }
       }
 
-      // Sort by relevance (title matches first, then description, then body)
-      matched.sort((a, b) => {
-        const aTitleMatch = a.title.toLowerCase().includes(queryLower);
-        const bTitleMatch = b.title.toLowerCase().includes(queryLower);
-        if (aTitleMatch && !bTitleMatch) {
-          return -1;
-        }
-        if (!aTitleMatch && bTitleMatch) {
-          return 1;
-        }
-
-        const aDescMatch = a.description?.toLowerCase().includes(queryLower);
-        const bDescMatch = b.description?.toLowerCase().includes(queryLower);
-        if (aDescMatch && !bDescMatch) {
-          return -1;
-        }
-        if (!aDescMatch && bDescMatch) {
-          return 1;
-        }
-
-        return 0;
-      });
+      // Rank with the same scorer the command palette uses for its other groups
+      matched.sort((a, b) => rankSearchResult(b, query) - rankSearchResult(a, query));
 
       return matched.slice(0, 20); // Limit to 20 results
     }
