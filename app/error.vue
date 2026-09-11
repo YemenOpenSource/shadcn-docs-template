@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { NuxtError } from "#app";
 import { ConfigProvider } from "reka-ui";
+import type { NuxtError } from "#app";
 
 defineProps<{
   error: NuxtError;

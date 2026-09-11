@@ -5,6 +5,8 @@
  * directly as the command palette's `:filter` scorer, and as the building
  * block behind `rankSearchResult` below.
  */
+
+const WHITESPACE_REGEX = /\s/;
 export function matchScore(text: string, query: string): number {
   const q = query.trim().toLowerCase();
   if (!q) {
@@ -22,7 +24,7 @@ export function matchScore(text: string, query: string): number {
   if (index === 0) {
     return 3;
   }
-  if (/\s/.test(t[index - 1] ?? "")) {
+  if (WHITESPACE_REGEX.test(t[index - 1] ?? "")) {
     return 2;
   }
   return 1;

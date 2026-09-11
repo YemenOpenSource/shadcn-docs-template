@@ -50,10 +50,17 @@ export default defineNuxtConfig({
     "@nuxt/content",
     "nuxt-shiki",
     "@nuxt/fonts",
+    "@nuxt/eslint",
   ],
 
   runtimeConfig: {
     docsVersion: DOCS_VERSION,
+  },
+
+  eslint: {
+    config: {
+      standalone: false,
+    },
   },
 
   routeRules: {
