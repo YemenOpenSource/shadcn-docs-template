@@ -41,7 +41,7 @@ useSeoMeta({
   ogDescription: page.value.description,
 });
 
-defineOgImage("Custom.takumi", {
+defineOgImageComponent("Custom", {
   title: page.value.title,
   description: page.value.description,
 });

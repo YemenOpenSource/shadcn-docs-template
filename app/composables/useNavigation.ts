@@ -13,6 +13,8 @@ export type NavigationItem = {
   type?: NavigationItemType;
   new?: boolean;
   soon?: boolean;
+  beta?: boolean;
+  hide?: boolean;
   navigation?: {
     icon?: string;
   };
@@ -55,7 +57,13 @@ export async function useNavigation() {
   const { data } = useAsyncData(
     "navigation",
     () => {
-      return queryCollectionNavigation("content", ["navigation", "new", "soon", "hide"]);
+      return queryCollectionNavigation("content", [
+        "navigation",
+        "new",
+        "soon",
+        "hide",
+        "beta",
+      ]);
     },
     {
       default: () => [],
