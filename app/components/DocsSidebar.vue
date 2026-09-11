@@ -1,41 +1,14 @@
 <script setup lang="ts">
-import type { SidebarNavigationItem } from "~/lib/navigation";
-import { showMcpDocs } from "~/lib/flag";
-import {
-  NAV_SECTIONS,
-  SIDEBAR_EXCLUDED_PAGES,
-  SIDEBAR_EXCLUDED_SECTIONS,
-
-} from "~/lib/navigation";
+import type { NavigationItem } from "~/lib/navigation";
+import { SIDEBAR_EXCLUDED_PAGES } from "~/lib/navigation";
 
 const props = defineProps<{
-  tree: SidebarNavigationItem;
+  tree: NavigationItem;
 }>();
 
 const { path } = toRefs(useRoute());
 
-const filteredSections = computed(() =>
-  NAV_SECTIONS.filter(section => showMcpDocs || !section.href.includes("/mcp")),
-);
-
-const rootPages = computed(() => {
-  return filteredSections.value.map((section) => {
-    const treeItem = (props.tree.children || []).find(item => item.path === section.href);
-    return {
-      path: section.href,
-      ...treeItem,
-      title: section.name,
-    } as SidebarNavigationItem;
-  });
-});
-
-const folderGroups = computed(() => {
-  return (props.tree.children || []).filter(
-    (item: SidebarNavigationItem) =>
-      (item.children || item.soon)
-      && !SIDEBAR_EXCLUDED_SECTIONS.includes(item.title.toLocaleLowerCase()),
-  );
-});
+const { rootPages, folderGroups } = useSidebarSections(() => props.tree);
 </script>
 
 <template>
@@ -110,7 +83,7 @@ const folderGroups = computed(() => {
           <SidebarMenu class="gap-0.5">
             <template
               v-for="childItem in (group.children || []).filter(
-                (child: SidebarNavigationItem) =>
+                (child: NavigationItem) =>
                   !child.hide && !SIDEBAR_EXCLUDED_PAGES.includes(child.path),
               )"
               :key="childItem.path"

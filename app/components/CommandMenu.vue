@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ChevronRight, Copy, CornerDownLeft, Square } from "lucide-vue-next";
-import type { NavigationItem } from "~/composables/useNavigation";
+import type { NavigationItem } from "~/lib/navigation";
 import { cn } from "~/lib/utils";
 
 type Props = {

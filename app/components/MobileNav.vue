@@ -1,49 +1,21 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
-import type { SidebarNavigationItem } from "@/lib/navigation";
-import {
-  NAV_SECTIONS,
-  SIDEBAR_EXCLUDED_PAGES,
-  SIDEBAR_EXCLUDED_SECTIONS,
-
-} from "@/lib/navigation";
+import type { NavigationItem } from "@/lib/navigation";
+import { SIDEBAR_EXCLUDED_PAGES } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 const props = defineProps<{
   class?: HTMLAttributes["class"];
-  tree: SidebarNavigationItem[]; // relaxed typing to avoid missing property errors in template
+  tree: NavigationItem[]; // relaxed typing to avoid missing property errors in template
   items: { name: string; href: string }[];
 }>();
 
 const router = useRouter();
 const open = ref(false);
 
-const rootPages = computed(() => {
-  const root = props.tree?.[0];
-  if (!root)
-    return [];
-  return NAV_SECTIONS.map((section) => {
-    const treeItem = (root.children || []).find(item => item.path === section.href);
-    return {
-      path: section.href,
-      ...treeItem,
-      title: section.name,
-    } as SidebarNavigationItem;
-  });
-});
-
-const folderGroups = computed(() => {
-  const root = props.tree?.[0];
-  if (!root)
-    return [];
-  return (root.children || []).filter(
-    (item: SidebarNavigationItem) =>
-      (item.children || item.soon)
-      && !SIDEBAR_EXCLUDED_SECTIONS.includes(item.title.toLocaleLowerCase()),
-  );
-});
+const { rootPages, folderGroups } = useSidebarSections(() => props.tree?.[0]);
 
 function handleNavigate(path: string) {
   router.push(path);

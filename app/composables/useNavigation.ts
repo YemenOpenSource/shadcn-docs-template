@@ -1,25 +1,7 @@
 // Current version of Nuxt Content has limitation to render grouped content, thus required manual mapping
 // https://github.com/nuxt/content/issues/3119
 import type { ContentNavigationItem } from "@nuxt/content";
-
-export type NavigationItemType = "page" | "component" | "block" | "group";
-// @see ContentNavigationItem
-export type NavigationItem = {
-  title: string;
-  path: string;
-  stem?: string;
-  children?: NavigationItem[];
-  page?: boolean;
-  type?: NavigationItemType;
-  new?: boolean;
-  soon?: boolean;
-  beta?: boolean;
-  hide?: boolean;
-  navigation?: {
-    icon?: string;
-  };
-  [key: string]: unknown;
-};
+import type { NavigationItem } from "~/lib/navigation";
 
 // const EXCLUDED_PARENT_TITLE = ["Components", "Registry", "Forms", "MCP Server"];
 

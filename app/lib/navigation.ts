@@ -1,8 +1,18 @@
-export type SidebarNavigationItem = {
+export type NavigationItemType = "page" | "component" | "block" | "group";
+
+/**
+ * The one navigation item shape shared across the content tree, the
+ * sidebar, the mobile nav, and the command palette. Previously split
+ * between this file's `SidebarNavigationItem` and `useNavigation.ts`'s
+ * `NavigationItem` — two names for the same near-identical structure.
+ */
+export type NavigationItem = {
   title: string;
   path: string;
   stem?: string;
-  children?: SidebarNavigationItem[];
+  children?: NavigationItem[];
+  page?: boolean;
+  type?: NavigationItemType;
   new?: boolean;
   beta?: boolean;
   soon?: boolean;
@@ -10,6 +20,7 @@ export type SidebarNavigationItem = {
   navigation?: {
     icon?: string;
   };
+  [key: string]: unknown;
 };
 
 export type NavItem = {
