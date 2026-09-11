@@ -57,7 +57,13 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    // redurct from /docs/animation to /docs/components/animation
+    // Short aliases → real content paths (content lives under section folders)
+    "/docs/introduction": {
+      redirect: "/docs/getting-started/introduction",
+    },
+    "/docs/installation": {
+      redirect: "/docs/getting-started/installation",
+    },
     "/docs/animation": {
       redirect: "/docs/components",
     },
@@ -76,7 +82,7 @@ export default defineNuxtConfig({
   },
 
   ogImage: {
-    fontSubsets: ["Geist:400", "Geist:500", "Geist:600"],
+    fonts: ["Geist:400", "Geist:500", "Geist:600"],
     defaults: {
       width: 1200,
       height: 630,

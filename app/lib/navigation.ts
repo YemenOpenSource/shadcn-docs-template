@@ -19,8 +19,8 @@ export type NavItem = {
 
 /** Top-level section pills shown in the sidebar and mobile menu. */
 export const NAV_SECTIONS: NavItem[] = [
-  { name: "Get Started", href: "/docs/introduction" },
-  { name: "Installation", href: "/docs/installation" },
+  { name: "Get Started", href: "/docs/getting-started/introduction" },
+  { name: "Installation", href: "/docs/getting-started/installation" },
   { name: "Components", href: "/docs/components" },
   { name: "Animations", href: "/docs/animation" },
 ];
@@ -37,7 +37,7 @@ export const SIDEBAR_EXCLUDED_PAGES: string[] = [];
  */
 export const MAIN_NAVIGATION: NavItem[] = [
   {
-    href: "/docs/introduction",
+    href: "/docs/getting-started/introduction",
     name: "Docs",
   },
   {
