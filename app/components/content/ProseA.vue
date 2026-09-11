@@ -1,8 +1,19 @@
 <script setup lang="ts">
+import type { HTMLAttributes } from "vue";
+import { cn } from "~/lib/utils";
+
 const props = withDefaults(
   defineProps<{
     href?: string;
-    target?: "_blank" | "_parent" | "_self" | "_top" | (string & object) | null | undefined;
+    target?:
+      | "_blank"
+      | "_parent"
+      | "_self"
+      | "_top"
+      | (string & object)
+      | null
+      | undefined;
+    class?: HTMLAttributes["class"];
   }>(),
   {
     href: "",
@@ -15,7 +26,7 @@ const props = withDefaults(
     prefetch-on="interaction"
     :href="props.href"
     :target="props.target"
-    class="font-medium underline underline-offset-4"
+    :class="cn('font-medium underline underline-offset-4', props.class)"
   >
     <slot />
   </NuxtLink>
