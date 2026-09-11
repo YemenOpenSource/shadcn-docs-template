@@ -8,7 +8,7 @@ const list = computed(
 
 <template>
   <div
-    class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-x-8 lg:gap-x-16 lg:gap-y-6 xl:gap-x-20"
+    class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-x-8 lg:gap-x-16 lg:gap-y-6 xl:gap-x-20 mt-6"
   >
     <NuxtLink
       v-for="component in list"

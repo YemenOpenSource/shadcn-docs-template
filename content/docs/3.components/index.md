@@ -9,6 +9,5 @@ navigation:
 
 Reusable building blocks used throughout this docs site.
 
-
 ::components-list
 ::
