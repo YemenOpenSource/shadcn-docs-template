@@ -1,42 +1,25 @@
-import type { UseMemoizeCache } from "@vueuse/core";
 import { refDebounced, useMemoize } from "@vueuse/core";
 
-const TWENTY_FOUR_HOURS = 1000 * 60 * 60 * 24;
-class TtlCache<Key, Value> implements UseMemoizeCache<Key, Value> {
-  private cache = new Map<Key, { value: Value; timestamp: number }>();
-  private ttl: number;
-
-  constructor(ttl: number) {
-    this.ttl = ttl;
+/**
+ * The one piece of logic the client cache's correctness actually depends on:
+ * compare the previously seen docs version against the latest one, and clear
+ * the search cache *before* adopting the new version — never after. Kept as
+ * a pure function (no fetch, no refs) so the ordering can be tested directly
+ * without mocking `$fetch`.
+ *
+ * The server's own cache (`server/api/search.get.ts`) already keys its
+ * entries by docs version, so this is the sole source of cache invalidation
+ * on the client; there is no separate TTL to reason about here.
+ */
+export function ensureFreshCache(
+  previousVersion: string | null,
+  latestVersion: string,
+  clearCache: () => void,
+): string {
+  if (previousVersion && previousVersion !== latestVersion) {
+    clearCache();
   }
-
-  get(key: Key): Value | undefined {
-    const entry = this.cache.get(key);
-    if (!entry) {
-      return undefined;
-    }
-    if (Date.now() - entry.timestamp > this.ttl) {
-      this.cache.delete(key);
-      return undefined;
-    }
-    return entry.value;
-  }
-
-  set(key: Key, value: Value): void {
-    this.cache.set(key, { value, timestamp: Date.now() });
-  }
-
-  has(key: Key): boolean {
-    return this.get(key) !== undefined;
-  }
-
-  delete(key: Key): void {
-    this.cache.delete(key);
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
+  return latestVersion;
 }
 
 export function useSearch() {
@@ -46,7 +29,10 @@ export function useSearch() {
   const searchResults = ref<SearchResult[]>([]);
   const currentDocsVersion = ref<string | null>(null);
 
-  // Memoized search request with 24h TTL cache
+  // Memoized search request. No TTL here on purpose: freshness is owned by
+  // ensureFreshCache below, which clears this cache whenever the docs
+  // version changes. Layering a time-based expiry on top would just be a
+  // second, redundant invalidation story next to that version check.
   const memoizedSearch = useMemoize(
     async (query: string): Promise<SearchResult[]> => {
       if (!query || query.trim().length < 2) {
@@ -64,9 +50,6 @@ export function useSearch() {
         return [];
       }
     },
-    {
-      cache: new TtlCache<string, Promise<SearchResult[]>>(TWENTY_FOUR_HOURS),
-    },
   );
 
   async function performSearch(query: string): Promise<SearchResult[]> {
@@ -80,10 +63,11 @@ export function useSearch() {
       // Check for version update before searching
       try {
         const { version } = await $fetch<{ version: string }>("/api/docs-version");
-        if (currentDocsVersion.value && currentDocsVersion.value !== version) {
-          memoizedSearch.clear();
-        }
-        currentDocsVersion.value = version;
+        currentDocsVersion.value = ensureFreshCache(
+          currentDocsVersion.value,
+          version,
+          memoizedSearch.clear,
+        );
       }
       catch (e) {
         console.error(`[ERROR]: ${e}`);
