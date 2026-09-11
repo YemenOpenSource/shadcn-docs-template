@@ -1,7 +1,7 @@
 {
   "name": "shadcn-docs-template",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "build": "nuxt build",
@@ -13,8 +13,8 @@
     "lint:fix": "eslint --fix",
     "lint:staged": "bunx --bun lint-staged",
     "prepare": "husky",
-    "changeset": "bunx --bun changeset",
-    "changeset:version": "bunx --bun changeset version",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
     "start": "bun preview"
   },
   "dependencies": {
@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^7.7.3",
+    "@changesets/cli": "^3.0.2",
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
     "@nuxt/a11y": "1.0.0-alpha.1",
