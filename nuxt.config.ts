@@ -93,7 +93,33 @@ export default defineNuxtConfig({
 
   vite: {
     optimizeDeps: {
-      include: ["reka-ui", "class-variance-authority", "clsx", "tailwind-merge", "lucide-vue-next"],
+      include: [
+        "reka-ui",
+        "class-variance-authority",
+        "clsx",
+        "tailwind-merge",
+        "lucide-vue-next",
+        "@vue/devtools-core",
+        "@vue/devtools-kit",
+        "shiki/langs/astro.mjs",
+        "shiki/langs/bash.mjs",
+        "shiki/langs/html.mjs",
+        "shiki/langs/javascript.mjs",
+        "shiki/langs/js.mjs",
+        "shiki/langs/json.mjs",
+        "shiki/langs/markdown.mjs",
+        "shiki/langs/md.mjs",
+        "shiki/langs/toml.mjs",
+        "shiki/langs/ts.mjs",
+        "shiki/langs/tsx.mjs",
+        "shiki/langs/typescript.mjs",
+        "shiki/langs/vue.mjs",
+        "shiki/langs/yaml.mjs",
+        "shiki/themes/github-dark.mjs",
+        "shiki/themes/github-light-default.mjs",
+        "shiki/themes/min-dark.mjs",
+        "shiki/themes/min-light.mjs",
+      ],
     },
     plugins: [
       // https://github.com/tailwindlabs/tailwindcss/discussions/19655
