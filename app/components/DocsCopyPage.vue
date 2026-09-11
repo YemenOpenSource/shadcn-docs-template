@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import type { ContentCollectionItem } from "@nuxt/content";
 import { isClient, useClipboard } from "@vueuse/core";
 import { Check, ChevronDown, Copy } from "lucide-vue-next";
 
 defineProps<{
-  page: ContentCollectionItem;
+  rawbody: string;
 }>();
 
 const url = computed(() => {
@@ -135,7 +134,7 @@ const { copy, copied } = useClipboard();
         variant="secondary"
         size="sm"
         class="h-8 shadow-none md:h-7 md:text-[0.8rem]"
-        @click="copy(page.rawbody || '')"
+        @click="copy(rawbody)"
       >
         <Check v-if="copied" /> <Copy v-else />
         Copy Page

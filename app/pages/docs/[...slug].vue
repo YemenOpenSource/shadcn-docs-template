@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { ContentCollectionItem } from "@nuxt/content";
 import {
   ArrowLeft,
   ArrowRight,
@@ -8,30 +7,22 @@ import {
   ChevronRight,
   Clock,
 } from "lucide-vue-next";
+import { toDocNeighbour, toDocPageView } from "~/lib/docs";
 
-type DocPage = ContentCollectionItem & {
-  rawbody?: string;
-  links?: {
-    doc?: string;
-    api?: string;
-  };
-  navigation?: {
-    icon?: string;
-  };
-  // lastUpdated?: string;
-};
 const route = useRoute();
 
-const { data: page } = await useAsyncData(route.path, () => {
-  return queryCollection("content").path(route.path).first() as Promise<DocPage | null>;
+const { data: page } = await useAsyncData(route.path, async () => {
+  const item = await queryCollection("content").path(route.path).first();
+  return item ? toDocPageView(item) : null;
 });
 
 if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: "Page not found" });
 }
 
-const { data: neighbours } = await useAsyncData(`surround-${route.path}`, () => {
-  return queryCollectionItemSurroundings("content", route.path);
+const { data: neighbours } = await useAsyncData(`surround-${route.path}`, async () => {
+  const items = await queryCollectionItemSurroundings("content", route.path);
+  return items.map(item => item ? toDocNeighbour(item) : null);
 });
 
 useSeoMeta({
@@ -62,8 +53,8 @@ defineOgImageComponent("Custom", {
                   class="flex scroll-m-20 items-center gap-3 text-4xl font-semibold tracking-tight sm:text-3xl xl:text-4xl"
                 >
                   <LucideIcon
-                    v-if="page.navigation?.icon"
-                    :name="page.navigation.icon"
+                    v-if="page.icon"
+                    :name="page.icon"
                     class="size-8 shrink-0 text-muted-foreground sm:size-7 xl:size-8"
                   />
                   {{ page.title }}
@@ -75,7 +66,7 @@ defineOgImageComponent("Custom", {
                     sm:border-t-0 sm:bg-transparent sm:px-0 sm:pt-1.5 sm:backdrop-blur-none
                   "
                 >
-                  <DocsCopyPage :page="page" />
+                  <DocsCopyPage :rawbody="page.rawbody" />
                   <!-- Copy page -->
                   <Button
                     v-if="neighbours?.[0]"
@@ -134,7 +125,7 @@ defineOgImageComponent("Custom", {
             </div>
           </div>
 
-          <ContentRenderer :value="page" class="w-full flex-1 *:data-[slot=alert]:first:mt-0" />
+          <ContentRenderer :value="page.source" class="w-full flex-1 *:data-[slot=alert]:first:mt-0" />
 
           <p
             v-if="page.lastUpdated"
@@ -177,8 +168,8 @@ defineOgImageComponent("Custom", {
         "
       >
         <div class="h-(--top-spacing) shrink-0" />
-        <div v-if="page.body.toc?.links.length" class="no-scrollbar overflow-y-auto px-8">
-          <DocsTableOfContents :toc="page.body.toc" />
+        <div v-if="page.toc?.links.length" class="no-scrollbar overflow-y-auto px-8">
+          <DocsTableOfContents :toc="page.toc" />
           <div class="h-12" />
         </div>
       </div>
